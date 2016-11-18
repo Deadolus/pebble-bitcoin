@@ -1,16 +1,15 @@
 {
-    "author": "Pebble",
+    "author": "DevEgli",
     "dependencies": {
         "pebble-clay": "^1.0.3"
     },
     "keywords": [],
-    "name": "tutorial-3-3",
+    "name": "btc-wallet-value",
     "pebble": {
         "capabilities": [
-            "location",
             "configurable"
         ],
-        "displayName": "Tutorial-3-3",
+        "displayName": "Bitcoin wallet value",
         "enableMultiJS": true,
         "messageKeys": {
             "KEY_BTC_ADDRESS": 1,
@@ -28,13 +27,13 @@
                 {
                     "compatibility": "2.7",
                     "file": "fonts/perfect-dos-vga.ttf",
-                    "name": "FONT_PERFECT_DOS_20",
+                    "name": "FONT_PERFECT_DOS_48",
                     "type": "font"
                 },
                 {
                     "compatibility": "2.7",
                     "file": "fonts/perfect-dos-vga.ttf",
-                    "name": "FONT_PERFECT_DOS_48",
+                    "name": "FONT_PERFECT_DOS_20",
                     "type": "font"
                 }
             ]
