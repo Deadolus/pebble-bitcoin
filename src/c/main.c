@@ -12,8 +12,9 @@ static GBitmap *s_background_bitmap;
 
 static GFont s_time_font;
 static GFont s_weather_font;
+static void tick_handler(struct tm *tick_time, TimeUnits units_changed);
 
-static void updateBalance(uint32_t balance)
+static void updateBalance(int32_t balance)
   {
     static char balance_buffer[20];
     static char weather_layer_buffer[32];
