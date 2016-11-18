@@ -12,13 +12,33 @@
         "displayName": "Bitcoin wallet value",
         "enableMultiJS": true,
         "messageKeys": {
-            "KEY_BTC_ADDRESS": 1,
+            "KEY_BTC_ADDRESS_1": 1,
+            "KEY_BTC_NAME_1": 3,
             "KEY_FINAL_BALANCE": 0,
             "KEY_REFRESH_INTERVAL": 2
         },
         "projectType": "native",
         "resources": {
             "media": [
+                {
+                    "file": "images/music_icon_ellipsis.png",
+                    "name": "ELLIPSIS",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/reload_icon_18.png",
+                    "name": "REFRESH",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
+                {
+                    "file": "images/bitcoin_symbol_icon.png",
+                    "menuIcon": true,
+                    "name": "BITCOIN",
+                    "targetPlatforms": null,
+                    "type": "bitmap"
+                },
                 {
                     "file": "images/background.png",
                     "name": "IMAGE_BACKGROUND",

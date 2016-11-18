@@ -18,10 +18,19 @@ Pebble.addEventListener('webviewclosed', function(e) {
   // Get the keys and values from each config item
   var dict = clay.getSettings(e.response);
   var messageKeys = require('message_keys');
-  console.log("keys"+messageKeys.KEY_BTC_ADDRESS);
-  btcAddress = dict[messageKeys.KEY_BTC_ADDRESS];
-  console.log("Settings closed, got address"+dict[messageKeys.KEY_BTC_ADDRESS]);
+  console.log("keys"+messageKeys.KEY_BTC_ADDRESS_1);
+  btcAddress = dict[messageKeys.KEY_BTC_ADDRESS_1];
+  console.log("Wallet name: "+dict[messageKeys.KEY_BTC_NAME_1])
+  console.log("Settings closed, got address"+dict[messageKeys.KEY_BTC_ADDRESS_1]);
   fetchAddress(0);
+  
+  // Send settings values to watch side
+  Pebble.sendAppMessage(dict, function(e) {
+    console.log('Sent config data to Pebble');
+  }, function(e) {
+    console.log('Failed to send config data!');
+    console.log(JSON.stringify(e));
+  });
 
   
 });
@@ -89,8 +98,8 @@ Pebble.addEventListener('ready',
     var settings = {};
 try {
 settings = JSON.parse(localStorage.getItem('clay-settings')) || {};
-  btcAddress = settings.KEY_BTC_ADDRESS;
-    console.log("Read config address: "+settings.KEY_BTC_ADDRESS);
+  btcAddress = settings.KEY_BTC_ADDRESS_1;
+    console.log("Read config address: "+settings.KEY_BTC_ADDRESS_1);
 } catch (e) {}
     fetchAddress();
   });

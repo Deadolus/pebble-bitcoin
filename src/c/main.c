@@ -2,6 +2,7 @@
 
 #define KEY_FINAL_BALANCE 0
 #define KEY_REFRESH_INTERVAL 2
+#define KEY_BTC_NAME_1 3
 
 static Window *s_main_window;
 static TextLayer *s_time_layer;
@@ -12,14 +13,18 @@ static GBitmap *s_background_bitmap;
 
 static GFont s_time_font;
 static GFont s_weather_font;
-static void tick_handler(struct tm *tick_time, TimeUnits units_changed);
+static ActionBarLayer *s_action_bar;
+static GBitmap *s_select_bitmap;
+static char name1[40];
+
+//static void tick_handler(struct tm *tick_time, TimeUnits units_changed);
 
 static void updateBalance(int32_t balance)
   {
     static char balance_buffer[20];
     static char weather_layer_buffer[32];
       if(balance > 0)
-    snprintf(balance_buffer, sizeof(balance_buffer), "BTC %d", (int)balance);
+    snprintf(balance_buffer, sizeof(balance_buffer), "%s\n%d", name1, (int)balance);
     else
       snprintf(balance_buffer, sizeof(balance_buffer), "ERROR");
    //snprintf(conditions_buffer, sizeof(conditions_buffer), "%s", conditions_tuple->value->cstring);
@@ -38,16 +43,23 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
   // Read tuples for data
   Tuple *balance_tuple = dict_find(iterator, KEY_FINAL_BALANCE);
   Tuple *refresh_tuple = dict_find(iterator, KEY_REFRESH_INTERVAL);
+  Tuple *name1_tuple = dict_find(iterator, KEY_BTC_NAME_1);
 
+    if(name1_tuple) {
+      snprintf(name1, sizeof(name1), "%s", name1_tuple->value->cstring);
+  }
   // If all data is available, use it
   if(balance_tuple) {
     int32_t balance = balance_tuple->value->int32;
      updateBalance(balance);
   }
+
+    s_select_bitmap = gbitmap_create_with_resource(RESOURCE_ID_REFRESH);
+    action_bar_layer_set_icon(s_action_bar, BUTTON_ID_SELECT, s_select_bitmap);
   
-  if(refresh_tuple) {
+  /*if(refresh_tuple) {
       tick_timer_service_subscribe(MINUTE_UNIT*refresh_tuple->value->int32, tick_handler);
-  }
+  }*/
 }
 
 static void inbox_dropped_callback(AppMessageResult reason, void *context) {
@@ -62,7 +74,19 @@ static void outbox_sent_callback(DictionaryIterator *iterator, void *context) {
   APP_LOG(APP_LOG_LEVEL_INFO, "Outbox send success!");
 }
 
-static void update_time() {
+static void sendMessageToPhone() {
+      // Begin dictionary
+    DictionaryIterator *iter;
+    app_message_outbox_begin(&iter);
+
+    // Add a key-value pair
+    dict_write_uint8(iter, 0, 0);
+  s_select_bitmap = gbitmap_create_with_resource(RESOURCE_ID_ELLIPSIS);
+    action_bar_layer_set_icon(s_action_bar, BUTTON_ID_SELECT, s_select_bitmap);
+    // Send the message!
+    app_message_outbox_send();
+}
+/*static void update_time() {
   // Get a tm structure
   time_t temp = time(NULL); 
   struct tm *tick_time = localtime(&temp);
@@ -74,9 +98,9 @@ static void update_time() {
 
   // Display this time on the TextLayer
   text_layer_set_text(s_time_layer, s_buffer);
-}
+}*/
 
-static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
+/*static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
   update_time();
 
   // Get weather update every 30 minutes
@@ -90,8 +114,9 @@ static void tick_handler(struct tm *tick_time, TimeUnits units_changed) {
 
     // Send the message!
     app_message_outbox_send();
+    text_layer_set_text(s_weather_layer, "Sent");
   }
-}
+}*/
 
 static void main_window_load(Window *window) {
   // Get information about the Window
@@ -99,37 +124,37 @@ static void main_window_load(Window *window) {
   GRect bounds = layer_get_bounds(window_layer);
 
   // Create GBitmap
-  s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BACKGROUND);
+  /*s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BACKGROUND);
 
   // Create BitmapLayer to display the GBitmap
   s_background_layer = bitmap_layer_create(bounds);
 
   // Set the bitmap onto the layer and add to the window
   bitmap_layer_set_bitmap(s_background_layer, s_background_bitmap);
-  layer_add_child(window_layer, bitmap_layer_get_layer(s_background_layer));
+  layer_add_child(window_layer, bitmap_layer_get_layer(s_background_layer));*/
 
   // Create the TextLayer with specific bounds
-  s_time_layer = text_layer_create(
+  /*s_time_layer = text_layer_create(
       GRect(0, PBL_IF_ROUND_ELSE(58, 52), bounds.size.w, 50));
 
   // Improve the layout to be more like a watchface
   text_layer_set_background_color(s_time_layer, GColorClear);
   text_layer_set_text_color(s_time_layer, GColorBlack);
   text_layer_set_text(s_time_layer, "00:00");
-  text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);
+  text_layer_set_text_alignment(s_time_layer, GTextAlignmentCenter);*/
 
   // Create GFont
-  s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_48));
+  //s_time_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_48));
 
   // Apply to TextLayer
-  text_layer_set_font(s_time_layer, s_time_font);
+  //text_layer_set_font(s_time_layer, s_time_font);
 
   // Add it as a child layer to the Window's root layer
-  layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
+  //layer_add_child(window_layer, text_layer_get_layer(s_time_layer));
 
   // Create temperature Layer
   s_weather_layer = text_layer_create(
-      GRect(0, PBL_IF_ROUND_ELSE(125, 120), bounds.size.w, 25));
+      GRect(0, PBL_IF_ROUND_ELSE(25, 25), bounds.size.w, bounds.size.h));
 
   // Style the text
   text_layer_set_background_color(s_weather_layer, GColorClear);
@@ -139,7 +164,7 @@ static void main_window_load(Window *window) {
 
   // Create second custom font, apply it and add to Window
   //s_weather_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_20));
-  s_weather_font = fonts_get_system_font(FONT_KEY_GOTHIC_14_BOLD);
+  s_weather_font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
   text_layer_set_font(s_weather_layer, s_weather_font);
   layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_weather_layer));
 }
@@ -162,6 +187,17 @@ static void main_window_unload(Window *window) {
   fonts_unload_custom_font(s_weather_font);
 }
 
+static void select_click_handler(ClickRecognizerRef recognizer, void *context) {
+  // A single click has just occured
+  sendMessageToPhone();
+
+}
+
+static void click_config_provider(void *context) 
+  {
+    window_single_click_subscribe(BUTTON_ID_SELECT, (ClickHandler) select_click_handler);
+
+}
 
 static void init() {
   // Create main Window element and assign to pointer
@@ -180,22 +216,37 @@ static void init() {
   window_stack_push(s_main_window, true);
 
   // Make sure the time is displayed from the start
-  update_time();
+  //update_time();
 
   // Register with TickTimerService
-  tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
+  //tick_timer_service_subscribe(MINUTE_UNIT, tick_handler);
 
   // Register callbacks
   app_message_register_inbox_received(inbox_received_callback);
   app_message_register_inbox_dropped(inbox_dropped_callback);
   app_message_register_outbox_failed(outbox_failed_callback);
   app_message_register_outbox_sent(outbox_sent_callback);
+  
+  s_select_bitmap = gbitmap_create_with_resource(RESOURCE_ID_REFRESH);
+
+  // Create ActionBarLayer
+  s_action_bar = action_bar_layer_create();
+  action_bar_layer_set_click_config_provider(s_action_bar, click_config_provider);
+  // Set the icons
+action_bar_layer_set_icon(s_action_bar, BUTTON_ID_SELECT, s_select_bitmap);
+  // Add to Window
+action_bar_layer_add_to_window(s_action_bar, s_main_window);
 
   // Open AppMessage
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 }
 
 static void deinit() {
+  // Destroy the ActionBarLayer
+action_bar_layer_destroy(s_action_bar);
+
+// Destroy the icon GBitmaps
+gbitmap_destroy(s_select_bitmap);
   // Destroy Window
   window_destroy(s_main_window);
 }
