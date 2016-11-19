@@ -23,10 +23,10 @@ static void updateBalance(int32_t balance)
   {
     static char balance_buffer[20];
     static char weather_layer_buffer[32];
-      if(balance > 0)
+      if(balance >= 0)
     snprintf(balance_buffer, sizeof(balance_buffer), "%s\n%d", name1, (int)balance);
     else
-      snprintf(balance_buffer, sizeof(balance_buffer), "ERROR");
+      snprintf(balance_buffer, sizeof(balance_buffer), "%s\nERROR", name1);
    //snprintf(conditions_buffer, sizeof(conditions_buffer), "%s", conditions_tuple->value->cstring);
 
     // Assemble full string and display
@@ -47,6 +47,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 
     if(name1_tuple) {
       snprintf(name1, sizeof(name1), "%s", name1_tuple->value->cstring);
+      persist_write_string(KEY_BTC_NAME_1, name1);
   }
   // If all data is available, use it
   if(balance_tuple) {
@@ -199,6 +200,12 @@ static void click_config_provider(void *context)
 
 }
 
+static void loadValuesFromPersistentStorage(void) {
+  if(persist_exists(KEY_BTC_NAME_1)) {
+    persist_read_string(KEY_BTC_NAME_1, name1, sizeof(name1));
+  }
+}
+
 static void init() {
   // Create main Window element and assign to pointer
   s_main_window = window_create();
@@ -236,7 +243,7 @@ static void init() {
 action_bar_layer_set_icon(s_action_bar, BUTTON_ID_SELECT, s_select_bitmap);
   // Add to Window
 action_bar_layer_add_to_window(s_action_bar, s_main_window);
-
+loadValuesFromPersistentStorage();
   // Open AppMessage
   app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 }
