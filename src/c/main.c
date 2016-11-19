@@ -28,7 +28,7 @@ static void updateBalance(int32_t balance, int32_t balance_comma)
       snprintf(balance_buffer, sizeof(balance_buffer), "Please configure in settings");
     } else {
       if( (balance >= 0) && (balance_comma >= 0) )
-        snprintf(balance_buffer, sizeof(balance_buffer), "%s\n%d.%ld", name1, (int)(balance), (long int)(balance_comma));
+        snprintf(balance_buffer, sizeof(balance_buffer), "%s\n%d.%08ld", name1, (int)(balance), (long int)(balance_comma));
       else
         snprintf(balance_buffer, sizeof(balance_buffer), "%s\nERROR", name1);
     }
