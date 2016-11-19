@@ -12,7 +12,7 @@ module.exports = [
     "items": [
       {
         "type": "heading",
-        "defaultValue": "Wallet 1"
+        "defaultValue": "Wallet"
       },
       {
   "type": "input",
