@@ -15,20 +15,21 @@
             "KEY_BTC_ADDRESS_1": 1,
             "KEY_BTC_NAME_1": 3,
             "KEY_FINAL_BALANCE": 0,
+            "KEY_FINAL_BALANCE_COMMA": 4,
             "KEY_REFRESH_INTERVAL": 2
         },
         "projectType": "native",
         "resources": {
             "media": [
                 {
-                    "file": "images/music_icon_ellipsis.png",
-                    "name": "ELLIPSIS",
+                    "file": "images/reload_icon_18.png",
+                    "name": "REFRESH",
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
                 {
-                    "file": "images/reload_icon_18.png",
-                    "name": "REFRESH",
+                    "file": "images/music_icon_ellipsis.png",
+                    "name": "ELLIPSIS",
                     "targetPlatforms": null,
                     "type": "bitmap"
                 },
@@ -47,13 +48,13 @@
                 {
                     "compatibility": "2.7",
                     "file": "fonts/perfect-dos-vga.ttf",
-                    "name": "FONT_PERFECT_DOS_48",
+                    "name": "FONT_PERFECT_DOS_20",
                     "type": "font"
                 },
                 {
                     "compatibility": "2.7",
                     "file": "fonts/perfect-dos-vga.ttf",
-                    "name": "FONT_PERFECT_DOS_20",
+                    "name": "FONT_PERFECT_DOS_48",
                     "type": "font"
                 }
             ]

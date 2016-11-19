@@ -35,13 +35,26 @@ Pebble.addEventListener('webviewclosed', function(e) {
   
 });
 
+function sendClaySettings() {
+  settings = JSON.parse(localStorage.getItem('clay-settings')) || {};
+
+  // Send settings values to watch side
+  Pebble.sendAppMessage(settings, function(e) {
+    console.log('Sent config data to Pebble');
+  }, function(e) {
+    console.log('Failed to send config data!');
+    console.log(JSON.stringify(e));
+  });
+}
+
 function sendBalance(message)
 {
   if(message == 'undefined')
-    message = "Error"
+    balance = "Error";
         // Assemble dictionary using our keys
         var dictionary = {
-        "KEY_FINAL_BALANCE": message
+        "KEY_FINAL_BALANCE": message / 1e8,
+        "KEY_FINAL_BALANCE_COMMA" : message % 1e8
       };
 
       // Send to Pebble
@@ -83,6 +96,7 @@ function fetchAddress(_address) {
 
       // Temperature in Kelvin requires adjustment
       var balance = Math.round(json.final_balance);
+      //var balance = Math.round(json.total_received);
      } catch (e) {  }
       console.log("Balance is" + balance);
       sendBalance(balance);
@@ -102,6 +116,7 @@ settings = JSON.parse(localStorage.getItem('clay-settings')) || {};
     console.log("Read config address: "+settings.KEY_BTC_ADDRESS_1);
 } catch (e) {}
     fetchAddress();
+    sendClaySettings();
   });
 
 // Listen for when an AppMessage is received

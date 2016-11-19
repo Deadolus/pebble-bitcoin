@@ -1,6 +1,7 @@
 #include <pebble.h>
 
 #define KEY_FINAL_BALANCE 0
+#define KEY_FINAL_BALANCE_COMMA 4
 #define KEY_REFRESH_INTERVAL 2
 #define KEY_BTC_NAME_1 3
 
@@ -19,19 +20,23 @@ static char name1[40];
 
 //static void tick_handler(struct tm *tick_time, TimeUnits units_changed);
 
-static void updateBalance(int32_t balance)
+static void updateBalance(int32_t balance, int32_t balance_comma)
 {
-    static char balance_buffer[20];
-    static char wallet_layer_buffer[32];
-    if(balance >= 0)
-        snprintf(balance_buffer, sizeof(balance_buffer), "%s\n%d", name1, (int)balance);
-    else
+    static char balance_buffer[80];
+    //static char wallet_layer_buffer[60];
+    if(strcmp(name1, "") == 0 ) {
+      snprintf(balance_buffer, sizeof(balance_buffer), "Please configure in settings");
+    } else {
+      if( (balance >= 0) && (balance_comma >= 0) )
+        snprintf(balance_buffer, sizeof(balance_buffer), "%s\n%d.%ld", name1, (int)(balance), (long int)(balance_comma));
+      else
         snprintf(balance_buffer, sizeof(balance_buffer), "%s\nERROR", name1);
+    }
     //snprintf(conditions_buffer, sizeof(conditions_buffer), "%s", conditions_tuple->value->cstring);
 
     // Assemble full string and display
-    snprintf(wallet_layer_buffer, sizeof(wallet_layer_buffer), "%s", balance_buffer);
-    text_layer_set_text(s_wallet_layer, wallet_layer_buffer);
+    //snprintf(wallet_layer_buffer, sizeof(wallet_layer_buffer), "%s", balance_buffer);
+    text_layer_set_text(s_wallet_layer, balance_buffer);
 }
 
 static void inbox_received_callback(DictionaryIterator *iterator, void *context) {
@@ -42,6 +47,7 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
 
     // Read tuples for data
     Tuple *balance_tuple = dict_find(iterator, KEY_FINAL_BALANCE);
+     Tuple *balance_comma_tuple = dict_find(iterator, KEY_FINAL_BALANCE_COMMA);
     Tuple *refresh_tuple = dict_find(iterator, KEY_REFRESH_INTERVAL);
     Tuple *name1_tuple = dict_find(iterator, KEY_BTC_NAME_1);
 
@@ -50,9 +56,12 @@ static void inbox_received_callback(DictionaryIterator *iterator, void *context)
         persist_write_string(KEY_BTC_NAME_1, name1);
     }
     // If all data is available, use it
-    if(balance_tuple) {
+    if(balance_tuple && balance_comma_tuple) {
         int32_t balance = balance_tuple->value->int32;
-        updateBalance(balance);
+      int32_t balance_comma = balance_comma_tuple->value->int32;
+        persist_write_int(KEY_FINAL_BALANCE, balance);
+      persist_write_int(KEY_FINAL_BALANCE_COMMA, balance_comma);
+        updateBalance(balance, balance_comma);
     }
 
     s_select_bitmap = gbitmap_create_with_resource(RESOURCE_ID_REFRESH);
@@ -123,6 +132,7 @@ static void main_window_load(Window *window) {
     // Get information about the Window
     Layer *window_layer = window_get_root_layer(window);
     GRect bounds = layer_get_bounds(window_layer);
+    static char text_buffer[80];
 
     // Create GBitmap
     /*s_background_bitmap = gbitmap_create_with_resource(RESOURCE_ID_IMAGE_BACKGROUND);
@@ -155,19 +165,24 @@ static void main_window_load(Window *window) {
 
     // Create temperature Layer
     s_wallet_layer = text_layer_create(
-            GRect(0, PBL_IF_ROUND_ELSE(25, 25), bounds.size.w, bounds.size.h));
+            GRect(5, PBL_IF_ROUND_ELSE(5, 5), bounds.size.w-40, bounds.size.h));
 
     // Style the text
     text_layer_set_background_color(s_wallet_layer, GColorClear);
     text_layer_set_text_color(s_wallet_layer, GColorWhite);
     text_layer_set_text_alignment(s_wallet_layer, GTextAlignmentCenter);
-    text_layer_set_text(s_wallet_layer, "Loading...");
+    text_layer_set_overflow_mode(s_wallet_layer, GTextOverflowModeWordWrap);
+  
+  
+    snprintf(text_buffer, sizeof(text_buffer), "%s\nLoading...", name1);
+    text_layer_set_text(s_wallet_layer, text_buffer);
 
     // Create second custom font, apply it and add to Window
     //s_wallet_font = fonts_load_custom_font(resource_get_handle(RESOURCE_ID_FONT_PERFECT_DOS_20));
     s_wallet_font = fonts_get_system_font(FONT_KEY_GOTHIC_28_BOLD);
     text_layer_set_font(s_wallet_layer, s_wallet_font);
     layer_add_child(window_get_root_layer(window), text_layer_get_layer(s_wallet_layer));
+    text_layer_enable_screen_text_flow_and_paging(s_wallet_layer, 5);
 }
 
 static void main_window_unload(Window *window) {
@@ -211,7 +226,7 @@ static void init() {
     s_main_window = window_create();
 
     // Set the background color
-    window_set_background_color(s_main_window, GColorBlack);
+    window_set_background_color(s_main_window, GColorDarkGray);
 
     // Set handlers to manage the elements inside the Window
     window_set_window_handlers(s_main_window, (WindowHandlers) {
@@ -244,6 +259,7 @@ static void init() {
     // Add to Window
     action_bar_layer_add_to_window(s_action_bar, s_main_window);
     loadValuesFromPersistentStorage();
+    updateBalance(0,0);
     // Open AppMessage
     app_message_open(app_message_inbox_size_maximum(), app_message_outbox_size_maximum());
 }
