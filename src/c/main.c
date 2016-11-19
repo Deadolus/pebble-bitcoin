@@ -22,7 +22,7 @@ static char name1[40];
 
 static void updateBalance(int32_t balance, int32_t balance_comma)
 {
-    static char balance_buffer[80];
+    static char balance_buffer[76];
     //static char wallet_layer_buffer[60];
     if(strcmp(name1, "") == 0 ) {
       snprintf(balance_buffer, sizeof(balance_buffer), "Please configure in settings");

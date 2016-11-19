@@ -21,7 +21,7 @@ module.exports = [
   "label": "Wallet Name",
   "attributes": {
     "placeholder": "eg: MyWallet",
-    "limit": 40,
+    "limit": 36,
     "type": "text"
   }
 }  ,
