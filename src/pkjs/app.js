@@ -53,9 +53,10 @@ function sendBalance(message)
     balance = "Error";
         // Assemble dictionary using our keys
         var dictionary = {
-        "KEY_FINAL_BALANCE": message / 1e8,
+        "KEY_FINAL_BALANCE": Math.floor(message / 1e8),
         "KEY_FINAL_BALANCE_COMMA" : message % 1e8
       };
+  console.log('Balance is: '+Math.floor(message/1e8)+' after comma: '+message%1e8)
 
       // Send to Pebble
       Pebble.sendAppMessage(dictionary,

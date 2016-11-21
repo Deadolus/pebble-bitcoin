@@ -20,19 +20,38 @@ static char name1[40];
 
 //static void tick_handler(struct tm *tick_time, TimeUnits units_changed);
 
+static void removeTrailingZeroes(char* buffer) {
+      int i;
+      for(i=strlen(buffer); i > 0; i--) {
+      if(buffer[i] == '0') {
+        buffer[i] = '\0';
+      }
+      if(buffer[i-1] != '0')
+        break;
+      }
+}
+
 static void updateBalance(int32_t balance, int32_t balance_comma)
 {
     static char balance_buffer[76];
+    static char comma_buffer [9];
+
     //static char wallet_layer_buffer[60];
     if(strcmp(name1, "") == 0 ) {
       snprintf(balance_buffer, sizeof(balance_buffer), "Please configure in settings");
     } else {
-      if( (balance >= 0) && (balance_comma >= 0) )
-        snprintf(balance_buffer, sizeof(balance_buffer), "%s\n%d.%08ld", name1, (int)(balance), (long int)(balance_comma));
+      if( (balance >= 0) && (balance_comma >= 0) ) {
+        snprintf(comma_buffer, sizeof(comma_buffer), "%08ld", (long int) balance_comma);
+        removeTrailingZeroes(comma_buffer);
+        snprintf(balance_buffer, sizeof(balance_buffer), "%s\n%d.%s", name1, (int)(balance), comma_buffer);
+
+      }
       else
         snprintf(balance_buffer, sizeof(balance_buffer), "%s\nERROR", name1);
     }
+
     //snprintf(conditions_buffer, sizeof(conditions_buffer), "%s", conditions_tuple->value->cstring);
+
 
     // Assemble full string and display
     //snprintf(wallet_layer_buffer, sizeof(wallet_layer_buffer), "%s", balance_buffer);
