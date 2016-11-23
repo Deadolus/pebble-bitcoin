@@ -29,23 +29,23 @@ static void removeTrailingZeroes(char* buffer) {
     }
 }
 
-static void makeFloatString(int32_t balance, int32_t AfterComma, char* buffer) {
-    snprintf(buffer, sizeof(buffer), "%ld.%08ld", (long int)balance, (long int) AfterComma);
+static void makeFloatString(int32_t balance, int32_t AfterComma, char* buffer, int size) {
+    snprintf(buffer, size, "%ld.%08ld", (long int)balance, (long int) AfterComma);
     removeTrailingZeroes(buffer);
 }
 
-static void formatBalance(int32_t balance, int32_t AfterComma, char* buffer) {
+static void formatBalance(int32_t balance, int32_t AfterComma, char* buffer, int size) {
     static char floatBuffer[30];
     if( (balance >= 0) && (AfterComma >= 0) ) {
-        makeFloatString(balance, AfterComma, floatBuffer);
-        snprintf(buffer, sizeof(buffer), "%s\n%s", name1,  floatBuffer);
+        makeFloatString(balance, AfterComma, floatBuffer, sizeof(floatBuffer));
+        snprintf(buffer, size, "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa%s\n%s", name1,  floatBuffer);
     }
     else
-        snprintf(buffer, sizeof(buffer), "%s\nERROR", name1);
+        snprintf(buffer, size, "%s\nERROR", name1);
 }
 
 static bool walletNameconfigured() {
-    return strcmp(name1, "") == 0;
+    return strcmp(name1, "") != 0;
 }
 
 static void updateBalance(int32_t balance, int32_t balance_comma)
@@ -55,7 +55,7 @@ static void updateBalance(int32_t balance, int32_t balance_comma)
     if( !walletNameconfigured() ) {
         snprintf(balance_buffer, sizeof(balance_buffer), "Please configure in settings");
     } else {
-        formatBalance(balance, balance_comma, balance_buffer);
+        formatBalance(balance, balance_comma, balance_buffer, sizeof(balance_buffer));
     }
 
     // display string
