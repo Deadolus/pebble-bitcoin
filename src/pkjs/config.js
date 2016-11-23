@@ -35,10 +35,10 @@ module.exports = [
     "limit": 34,
     "type": "text"
   }
-}  
+}
     ]
   },
-  
+
         {
     "type": "submit",
     "defaultValue": "Save Settings"
